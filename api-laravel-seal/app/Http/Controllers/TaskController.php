@@ -29,10 +29,10 @@ class TaskController extends Controller
             ]);
 
             if ($newProject) {
-                $message = 'Berhasil menambah data proyek';
+                $message = 'Berhasil menambah data Tugas';
                 $status_code = 201;
             } else {
-                $message = 'Gagal menambah data proyek';
+                $message = 'Gagal menambah data Tugas';
                 $status_code = 400;
             }
 
@@ -48,6 +48,34 @@ class TaskController extends Controller
                 'status' => $status,
                 'message' => $message,
                 'data' => $data
+            ], $status_code);
+        }
+    }
+    public function getProject()
+    {
+        $status = '';
+        $message = '';
+        try {
+            $projects = Task::all();
+            if ($projects) {
+                $message = 'Berhasil mengambil data Tugas';
+                $status_code = 201;
+            } else {
+                $message = 'Gagal mengambil data Tugas';
+                $status_code = 400;
+            }
+            $status = 'success';
+            $data = $projects;
+        } catch (\Exception $e) {
+            $status = 'failed';
+            $message = 'gagal menjalankan request: ' . $e->getMessage();
+            $status_code = 500;
+            $data = null;
+        } finally {
+            return response()->json([
+                'status' => $status,
+                'message' => $message,
+                'data' => $data,
             ], $status_code);
         }
     }
