@@ -11,53 +11,42 @@ class TaskController extends Controller
     {
         $status = '';
         $message = '';
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:pending,in progress,completed', 
-            'project_id' => 'required|exists:projects,id_project', 
-            'user_id' => 'required|exists:users,id_user', 
-        ]);
-
         try {
-            $newProject = Task::create([
-                'name' => $request->name,
-                'description' => $request->description,
-                'status' => $request->status,
-                'project_id' => $request->project_id,
-                'user_id' => $request->user_id,
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'required|string',
+                'status' => 'required|string',
+                'project_id' => 'required|exists:projects,id_project',
+                'user_id' => 'required|exists:users,id_user',
             ]);
 
-            if ($newProject) {
-                $message = 'Berhasil menambah data Tugas';
-                $status_code = 201;
-            } else {
-                $message = 'Gagal menambah data Tugas';
-                $status_code = 400;
-            }
+            $task = Task::create($validatedData);
 
             $status = 'success';
-            $data = $newProject;
+            $message = 'Tugas berhasil dibuat';
+            $status_code = 201;
+            $data = $task;
         } catch (\Exception $e) {
             $status = 'failed';
-            $message = 'Gagal menjalankan request: ' . $e->getMessage();
+            $message = 'Gagal membuat tugas: ' . $e->getMessage();
             $status_code = 500;
             $data = null;
         } finally {
             return response()->json([
                 'status' => $status,
                 'message' => $message,
-                'data' => $data
+                'data' => $data,
             ], $status_code);
         }
     }
-    public function getProject()
+
+    public function getTask()
     {
         $status = '';
         $message = '';
         try {
-            $projects = Task::all();
-            if ($projects) {
+            $tasks = Task::all();
+            if ($tasks) {
                 $message = 'Berhasil mengambil data Tugas';
                 $status_code = 201;
             } else {
@@ -65,7 +54,7 @@ class TaskController extends Controller
                 $status_code = 400;
             }
             $status = 'success';
-            $data = $projects;
+            $data = $tasks;
         } catch (\Exception $e) {
             $status = 'failed';
             $message = 'gagal menjalankan request: ' . $e->getMessage();
@@ -79,29 +68,30 @@ class TaskController extends Controller
             ], $status_code);
         }
     }
-    public function deleteProject($id)
+
+    public function deleteTask($id_task)
     {
         $status = '';
         $message = '';
-
         try {
-            $project = Task::find($id);
+            $task = Task::find($id_task);
 
-            if ($project) {
-                $project->delete();
-                $status = 'success';
-                $message = 'Berhasil menghapus data Tugas';
-                $status_code = 200;
-                $data = null;
-            } else {
+            if (!$task) {
                 $status = 'failed';
                 $message = 'Tugas tidak ditemukan';
                 $status_code = 404;
                 $data = null;
+            } else {
+                $task->delete();
+
+                $status = 'success';
+                $message = 'Tugas berhasil dihapus';
+                $status_code = 200;
+                $data = null;
             }
         } catch (\Exception $e) {
             $status = 'failed';
-            $message = 'Gagal menjalankan request: ' . $e->getMessage();
+            $message = 'Gagal menghapus tugas: ' . $e->getMessage();
             $status_code = 500;
             $data = null;
         } finally {

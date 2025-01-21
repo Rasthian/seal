@@ -75,13 +75,13 @@ class ProjectController extends Controller
         }
     }
 
-    public function deleteProject($id)
+    public function deleteProject($id_project)
     {
         $status = '';
         $message = '';
 
         try {
-            $project = Project::find($id);
+            $project = Project::find($id_project);
 
             if ($project) {
                 $project->delete();
@@ -108,7 +108,7 @@ class ProjectController extends Controller
             ], $status_code);
         }
     }
-    public function updateProject(Request $request, $id)
+    public function updateProject(Request $request, $id_project)
     {
         $status = '';
         $message = '';
@@ -119,7 +119,7 @@ class ProjectController extends Controller
         ]);
 
         try {
-            $project = Project::find($id);
+            $project = Project::find($id_project);
 
             if ($project) {
                 $project->update([
