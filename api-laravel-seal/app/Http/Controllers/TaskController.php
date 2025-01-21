@@ -79,4 +79,37 @@ class TaskController extends Controller
             ], $status_code);
         }
     }
+    public function deleteProject($id)
+    {
+        $status = '';
+        $message = '';
+
+        try {
+            $project = Task::find($id);
+
+            if ($project) {
+                $project->delete();
+                $status = 'success';
+                $message = 'Berhasil menghapus data Tugas';
+                $status_code = 200;
+                $data = null;
+            } else {
+                $status = 'failed';
+                $message = 'Tugas tidak ditemukan';
+                $status_code = 404;
+                $data = null;
+            }
+        } catch (\Exception $e) {
+            $status = 'failed';
+            $message = 'Gagal menjalankan request: ' . $e->getMessage();
+            $status_code = 500;
+            $data = null;
+        } finally {
+            return response()->json([
+                'status' => $status,
+                'message' => $message,
+                'data' => $data,
+            ], $status_code);
+        }
+    }
 }
