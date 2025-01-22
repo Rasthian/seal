@@ -49,7 +49,7 @@ class add_default_project extends Seeder
             $exists = DB::table('projects')->where('name',$project['name'])->count();
             
             if( $exists == 0 ){
-                DB::table('project')->insert($project);
+                DB::table('projects')->insert($project);
                 }
         }
     }

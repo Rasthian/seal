@@ -46,7 +46,7 @@ class add_default_task extends Seeder
                 'description' => 'Deskripsi untuk Tugas 4.',
                 'status' => 'pending',
                 'project_id' => 2, 
-                'user_id' => 3,    
+                'user_id' => 2,    
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
