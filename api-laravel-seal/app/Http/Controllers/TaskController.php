@@ -19,9 +19,7 @@ class TaskController extends Controller
                 'project_id' => 'required|exists:projects,id_project',
                 'user_id' => 'required|exists:users,id_user',
             ]);
-
             $task = Task::create($validatedData);
-
             $status = 'success';
             $message = 'Tugas berhasil dibuat';
             $status_code = 201;
@@ -92,6 +90,47 @@ class TaskController extends Controller
         } catch (\Exception $e) {
             $status = 'failed';
             $message = 'Gagal menghapus tugas: ' . $e->getMessage();
+            $status_code = 500;
+            $data = null;
+        } finally {
+            return response()->json([
+                'status' => $status,
+                'message' => $message,
+                'data' => $data,
+            ], $status_code);
+        }
+    }
+    public function updateTask(Request $request, $id_task)
+    {
+        $status = '';
+        $message = '';
+        try {
+            $task = Task::find($id_task);
+
+            if (!$task) {
+                $status = 'failed';
+                $message = 'Tugas tidak ditemukan';
+                $status_code = 404;
+                $data = null;
+            } else {
+                $validatedData = $request->validate([
+                    'name' => 'sometimes|string|max:255',
+                    'description' => 'sometimes|string',
+                    'status' => 'sometimes|string',
+                    'project_id' => 'sometimes|exists:projects,id_project',
+                    'user_id' => 'sometimes|exists:users,id_user',
+                ]);
+
+                $task->update($validatedData);
+
+                $status = 'success';
+                $message = 'Tugas berhasil diperbarui';
+                $status_code = 200;
+                $data = $task;
+            }
+        } catch (\Exception $e) {
+            $status = 'failed';
+            $message = 'Gagal memperbarui tugas: ' . $e->getMessage();
             $status_code = 500;
             $data = null;
         } finally {

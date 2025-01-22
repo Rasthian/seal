@@ -21,3 +21,4 @@ Route::put('/projects/{id}', [ProjectController::class, 'updateProject']);
 Route::post('/tasks', [TaskController::class, 'createTask']); 
 Route::get('/tasks', [TaskController::class, 'getTask']);
 Route::delete('/tasks/{id}', [TaskController::class, 'deleteTask']);
+Route::put('/tasks/{id}', [TaskController::class, 'updateTask']);
