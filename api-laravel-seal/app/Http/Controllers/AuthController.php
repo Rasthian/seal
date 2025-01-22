@@ -46,7 +46,8 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|max:255|unique:users',
-                'password' => 'required|string|min:8'
+                'password' => 'required|string|min:8',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar jika ada
             ]);
 
             if ($validator->fails()) {
@@ -56,8 +57,14 @@ class AuthController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password)
+                'password' => Hash::make($request->password),
             ]);
+
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('images', 'public');
+                $user->image = basename($imagePath);
+                $user->save();
+            }
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -67,9 +74,10 @@ class AuthController extends Controller
             $data = [
                 'user' => $user,
                 'access_token' => $token,
-                'token_type' => 'Bearer'
+                'token_type' => 'Bearer',
             ];
         } catch (\Exception $e) {
+            // Response gagal
             $status = 'failed';
             $message = 'Failed to register user: ' . $e->getMessage();
             $status_code = $e->getCode() ?: 500;
@@ -78,6 +86,7 @@ class AuthController extends Controller
             return response()->json(compact('status', 'message', 'data'), $status_code);
         }
     }
+
 
     public function login(Request $request)
     {
@@ -107,15 +116,13 @@ class AuthController extends Controller
         }
     }
 
-    public function updateUser(Request $request,$id)
+    public function updateUser(Request $request)
     {
         try {
-            $authenticatedUser = $request->user();
+            // Ambil user yang sedang login
+            $authenticatedUser = Auth::user();
 
-            if ($authenticatedUser->id != $id) {
-                throw new \Exception('You can only update your own account', 403);
-            }
-
+            // Validasi input
             $validator = Validator::make($request->all(), [
                 'name' => 'sometimes|required|string|max:255',
                 'email' => 'sometimes|required|string|max:255|unique:users,email,' . $authenticatedUser->id,
@@ -127,6 +134,7 @@ class AuthController extends Controller
                 throw new \Exception($validator->errors()->first(), 400);
             }
 
+            // Update data pengguna
             if ($request->has('name')) {
                 $authenticatedUser->name = $request->name;
             }
@@ -144,12 +152,14 @@ class AuthController extends Controller
                     Storage::delete('public/images/' . $authenticatedUser->image);
                 }
 
+                // Simpan gambar baru
                 $imagePath = $request->file('image')->store('images', 'public');
                 $authenticatedUser->image = basename($imagePath);
             }
 
             $authenticatedUser->save();
 
+            // Respon sukses
             $status = 'success';
             $message = 'User updated successfully';
             $status_code = 200;
@@ -158,6 +168,7 @@ class AuthController extends Controller
                 'image_url' => asset('storage/images/' . $authenticatedUser->image),
             ];
         } catch (\Exception $e) {
+            // Respon gagal
             $status = 'failed';
             $message = 'Failed to update user: ' . $e->getMessage();
             $status_code = $e->getCode() ?: 500;
@@ -170,14 +181,11 @@ class AuthController extends Controller
 
 
 
+
+
     public function deleteUser($id, Request $request)
     {
         try {
-            $authenticatedUser = $request->user();
-
-            if ($authenticatedUser->id != $id) {
-                throw new \Exception('You can only delete your own account', 403);
-            }
 
             $user = User::find($id);
 

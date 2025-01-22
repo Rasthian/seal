@@ -17,13 +17,13 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/tasks', [TaskController::class, 'getTask']);
 Route::get('/projects', [ProjectController::class, 'getProject']);
-
+Route::get('/profile/{id}', [AuthController::class, 'getProfileById']);
 Route::middleware('auth:sanctum')->group(function () {
    
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::put('/users/{id}', [AuthController::class, 'updateUser']);
+    Route::put('/users', [AuthController::class, 'updateUser']);
     Route::delete('/users/{id}', [AuthController::class, 'deleteUser']);
-    Route::get('/profile/{id}', [AuthController::class, 'getProfileById']);
+    
 
     Route::post('/projects', [ProjectController::class, 'createProject']);
     Route::delete('/projects/{id}', [ProjectController::class, 'deleteProject']);
