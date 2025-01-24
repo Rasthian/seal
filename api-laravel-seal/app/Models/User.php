@@ -37,14 +37,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function projects()
-    {
-        return $this->hasMany(Project::class, 'created_by');
-    }
 
     public function tasks()
     {
-        return $this->hasMany(Task::class, 'assigned_to');
+        return $this->hasMany(Task::class, 'user_id', 'id_user');
     }
 
     /**

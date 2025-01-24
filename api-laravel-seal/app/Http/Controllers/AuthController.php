@@ -17,11 +17,9 @@ class AuthController extends Controller
     {
         try {
             $user = User::find($id);
-
             if (!$user) {
                 throw new \Exception('User not found', 404);
             }
-
             $status = 'success';
             $message = 'User profile retrieved successfully';
             $status_code = 200;
@@ -47,7 +45,7 @@ class AuthController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|max:255|unique:users',
                 'password' => 'required|string|min:8',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar jika ada
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
             ]);
 
             if ($validator->fails()) {
@@ -66,18 +64,14 @@ class AuthController extends Controller
                 $user->save();
             }
 
-            $token = $user->createToken('auth_token')->plainTextToken;
 
             $status = 'success';
             $message = 'User registered successfully';
             $status_code = 201;
             $data = [
-                'user' => $user,
-                'access_token' => $token,
-                'token_type' => 'Bearer',
+                'user' => $user
             ];
         } catch (\Exception $e) {
-            // Response gagal
             $status = 'failed';
             $message = 'Failed to register user: ' . $e->getMessage();
             $status_code = $e->getCode() ?: 500;
@@ -119,10 +113,8 @@ class AuthController extends Controller
     public function updateUser(Request $request)
     {
         try {
-            // Ambil user yang sedang login
             $authenticatedUser = Auth::user();
 
-            // Validasi input
             $validator = Validator::make($request->all(), [
                 'name' => 'sometimes|required|string|max:255',
                 'email' => 'sometimes|required|string|max:255|unique:users,email,' . $authenticatedUser->id,
@@ -134,7 +126,6 @@ class AuthController extends Controller
                 throw new \Exception($validator->errors()->first(), 400);
             }
 
-            // Update data pengguna
             if ($request->has('name')) {
                 $authenticatedUser->name = $request->name;
             }
@@ -152,14 +143,12 @@ class AuthController extends Controller
                     Storage::delete('public/images/' . $authenticatedUser->image);
                 }
 
-                // Simpan gambar baru
                 $imagePath = $request->file('image')->store('images', 'public');
                 $authenticatedUser->image = basename($imagePath);
             }
 
             $authenticatedUser->save();
 
-            // Respon sukses
             $status = 'success';
             $message = 'User updated successfully';
             $status_code = 200;
@@ -168,7 +157,6 @@ class AuthController extends Controller
                 'image_url' => asset('storage/images/' . $authenticatedUser->image),
             ];
         } catch (\Exception $e) {
-            // Respon gagal
             $status = 'failed';
             $message = 'Failed to update user: ' . $e->getMessage();
             $status_code = $e->getCode() ?: 500;

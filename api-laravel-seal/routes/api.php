@@ -17,7 +17,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/tasks', [TaskController::class, 'getTask']);
 Route::get('/projects', [ProjectController::class, 'getProject']);
-Route::get('/profile/{id}', [AuthController::class, 'getProfileById']);
+Route::get('/users/{id}', [AuthController::class, 'getProfileById']);
 Route::middleware('auth:sanctum')->group(function () {
    
     Route::post('/logout', [AuthController::class, 'logout']);
